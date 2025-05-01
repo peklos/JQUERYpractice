@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jq practice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>.error-message { font-family: 'Roboto Flex', sans-serif; }</style>
+    <style>
+      main {
+        width: 100%;
+      }
+
+      section {
+        width: 100%;
+        max-width: 1000px;
+        height: 800px;
+        margin: 0 auto;
+        background-color: gray;
+        border-radius: 20px;
+        color: aquamarine;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      section h1,
+      h2 {
+        margin: 0 auto;
+        width: fit-content;
+      }
+
+      .things {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid black;
+        height: fit-content;
+        min-height: 300px;
+        background-color: #f0f0f0;
+      }
+
+      button {
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .thing {
+        border: 2px solid rgb(2, 245, 2);
+        padding: 10px;
+        border-radius: 10px;
+        margin: 10px;
+        background-color: white;
+        cursor: move; /* Курсор при наведении */
+      }
+      
+      .ui-draggable-dragging {
+        opacity: 0.8;
+        z-index: 1000;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      }
+      
+      .placeholder {
+        border: 2px dashed #ccc;
+        background-color: #f9f9f9;
+        height: 50px;
+        margin: 10px;
+      }
+
+      .buttons {
+        margin-top: 50px;
+        display: flex;
+        justify-content:space-around;
+      }
+
+      .buttons button {
+        padding: 5vw;
+      }
+
+      .modal {
+        display: none; /* Скрыто по умолчанию */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto; /* Центрирование */
+        padding: 15px 0;
+        border: 1px solid #888;
+        width: 300px; /* Маленькое окно */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+
+      .close {
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+      }
+
+      .close:hover {
+        color: red;
+      }
+
+      .accordion h3, .accordion h4 {
+        user-select: none; /*  ТУТ Я УБИРАЮ ВАЩЕ ВСЕ ВЫДЕЛЕНИЯ ПРИ ЧАСТОМ НАЖАТИИ НА ТАБ */
+        -webkit-user-select: none; /* Для Safari */
+        -moz-user-select: none; /* Для Firefox */
+        -ms-user-select: none; /* Для IE/Edge */
+        cursor: pointer; /* Чтобы курсор менялся на указатель */
+      }
+
+      section img {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 300px;
+        display: block;
+      }
+    </style>
+</head>
+<body>
+    <main>
+
+      <section class="todolist">
+        <h1>Привет</h1>
+        <h2>Это список дел</h2>
+        <p>Дело:</p>
+        <input class="input-thing" type="text" />
+        <button class="add-thing">добавить</button>
+        <div class="things"></div>
+      </section>
+
+      <section class="modal-win">
+        <h1>А это модальные окна</h1>
+        <div class="buttons">
+          <button class='button1'>Кнопка 1</button>
+          <button class='button2'>Кнопка 2</button>
+          <button class='button3'>Кнопка 3</button>
+        </div>
+      </section>
+
+      <section >
+        <h1 style="margin-bottom: 20px;">А тут аккордион</h1>
+        <div class="accordion">
+          <div class="group">
+            <h3>Первый таб</h1>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio atque voluptatem voluptatibus, reprehenderit harum facere. Deserunt voluptatibus earum iure explicabo qui deleniti, rem minus velit dicta aut. Ut, eius laudantium.</div>   
+          </div>
+          <div class="group">
+            <h3>Второй таб</h1>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio atque voluptatem voluptatibus, reprehenderit harum facere. Deserunt voluptatibus earum iure explicabo qui deleniti, rem minus velit dicta aut. Ut, eius laudantium.</div>   
+          </div>
+          <div class="group">
+            <h3>Третий таб</h1>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio atque voluptatem voluptatibus, reprehenderit harum facere. Deserunt voluptatibus earum iure explicabo qui deleniti, rem minus velit dicta aut. Ut, eius laudantium.</div>   
+          </div>
+          <div class="group">
+            <h3>Четвертый таб</h1>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio atque voluptatem voluptatibus, reprehenderit harum facere. Deserunt voluptatibus earum iure explicabo qui deleniti, rem minus velit dicta aut. Ut, eius laudantium.</div>   
+          </div>
+        </div>
+      </section>  
+
+      <section class="custom-dropdown-section">
+        <div class="custom-dropdown">
+          <button class="dropdown-toggle">Выберите опцию <span class="arrow">▼</span></button>
+          <ul class="dropdown-menu">
+            <li data-value="option1">Опция 1</li>
+            <li data-value="option2">Опция 2</li>
+            <li data-value="option3">Опция 3</li>
+            <li data-value="option4">Опция 4</li>
+          </ul>
+          <input type="hidden" name="selected_option" class="selected-value">
+        </div>
+      </section>
+
+      <section>
+        <form action="">
+          <p>Ваше имя:</p>
+          <input type="name" id="name_input">
+          <p>Ваша почта:</p>
+          <input type="email" id="email_input">
+          <p>Ваш номер:</p>
+          <input type="text" id="num_input"><br><br>
+          <button type="submit" id="sub_but">Отправить</button>
+        </form>
+        <p class="error-message"></p>
+      </section>
+
+
+      <style>
+        #autocomplete-list {
+          border: 1px solid #ccc;
+          max-height: 200px;
+          overflow-y: auto;
+          display: none;
+        }
+        #autocomplete-list div {
+          padding: 8px;
+          cursor: pointer;
+        }
+        #autocomplete-list div:hover {
+          background: #f0f0f0;
+        }
+      </style>
+
+      <section>
+        <h1>Поиск книг</h1>
+        <input type="text" id="search-input" placeholder="Введите название книги...">
+        <div id="autocomplete-list"></div>
+
+        <script>
+          $(document).ready(function() {
+          const $input = $('#search-input');
+          const $autocompleteList = $('#autocomplete-list');
+
+          // Обработчик ввода текста
+          $input.on('input', function() {
+            const query = $(this).val().trim();
+
+            if (query.length < 2) {  // Не отправляем запрос, если текст слишком короткий
+              $autocompleteList.hide().empty();
+              return;
+            }
+
+            // Запрос к API OpenLibrary (поиск книг)
+            $.ajax({
+              url: `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5`,
+              method: 'GET',
+              success: function(data) {
+                const books = data.docs || [];
+                $autocompleteList.empty();
+
+                if (books.length === 0) {
+                  $autocompleteList.append('<div>Ничего не найдено</div>');
+                } else {
+                  books.forEach(book => {
+                    const title = book.title || 'Без названия';
+                    const author = book.author_name ? book.author_name[0] : 'Неизвестный автор';
+                    $autocompleteList.append(`<div>${title} (${author})</div>`);
+                  });
+                }
+
+                $autocompleteList.show();
+              },
+              error: function() {
+                $autocompleteList.html('<div>Ошибка загрузки</div>').show();
+              }
+            });
+          });
+
+          // Клик по подсказке
+          $autocompleteList.on('click', 'div', function() {
+            $input.val($(this).text());
+            $autocompleteList.hide();
+          });
+
+          // Скрываем список при клике вне поля
+          $(document).on('click', function(e) {
+            if (!$(e.target).closest('#search-input, #autocomplete-list').length) {
+              $autocompleteList.hide();
+            }
+          });
+        });
+        </script>
+      </section>
+      
+      <script>
+        $('#sub_but').on('click', function(e) {
+          var name = $('#name_input').val().trim();
+          var num = $('#num_input').val().trim();
+          var email = $('#email_input').val().trim();
+          e.preventDefault();
+          if (name == '') {
+            $('.error-message').css('display', 'block');
+            $('.error-message').html("Поле 'Имя' не должно быть пустым");
+          } else if (name.length < 2) {
+            $('.error-message').css('display', 'block');
+            $('.error-message').html('Имя должно быть больше 1 буквы');
+          } else if (email == '') {
+            $('.error-message').css('display', 'block');
+            $('.error-message').html("Поле 'Почта' не должно быть пустым");
+          } else if (num == '') {
+            $('.error-message').css('display', 'block');
+            $('.error-message').html("Поле 'Номер' не должно быть пустым");
+          } else if (num.length < 6) {
+            $('.error-message').css('display', 'block');
+            $('.error-message').html("Номер принимается только от 6 цифр");
+          } else {
+            $('#myModal1').fadeIn(300);
+            $('.error-message').css('display', 'none');
+          }
+        });
+      </script>
+
+
+      <style>
+        
+        .error-message {
+          font-weight: 700;
+          color: red;
+          text-shadow: 0 0 5px black;
+          border: 1px solid orange;
+          width: fit-content;
+          padding: 10px;
+          display: none;
+        }
+
+        .custom-dropdown {
+          position: relative;
+          width: 200px;
+        }
+        
+        .dropdown-toggle {
+          width: 100%;
+          padding: 10px 15px;
+          background: #f5f5f5;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          text-align: left;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .dropdown-toggle:hover {
+          background: #e9e9e9;
+        }
+        
+        .dropdown-menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          background: white;
+          border: 1px solid #ddd;
+          border-top: none;
+          border-radius: 0 0 4px 4px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          display: none;
+          z-index: 1000;
+        }
+        
+        .dropdown-menu li {
+          padding: 10px 15px;
+          cursor: pointer;
+        }
+        
+        .dropdown-menu li:hover {
+          background: #f5f5f5;
+        }
+        
+        .arrow {
+          transition: transform 0.2s;
+        }
+        
+        .dropdown-open .arrow {
+          transform: rotate(180deg);
+        }
+        
+        .dropdown-open .dropdown-menu {
+          display: block;
+        }
+      </style>
+      
+      
+      <script>
+        $(document).ready(function() {
+          $('.dropdown-toggle').click(function() {
+            $(this).parent().toggleClass('dropdown-open');
+          });
+          
+          $('.dropdown-menu li').click(function() {
+            const value = $(this).data('value');
+            const text = $(this).text();
+            
+            $(this).closest('.custom-dropdown')
+              .find('.dropdown-toggle')
+              .text(text)
+              .append('<span class="arrow">▼</span>');
+            
+            $(this).closest('.custom-dropdown')
+              .find('.selected-value')
+              .val(value);
+            
+            $(this).closest('.custom-dropdown')
+              .removeClass('dropdown-open');
+          });
+          
+          // Закрытие при клике вне меню
+          $(document).click(function(e) {
+            if (!$(e.target).closest('.custom-dropdown').length) {
+              $('.custom-dropdown').removeClass('dropdown-open');
+            }
+          });
+        });
+      </script>
+
+    </main>
+
+    <div id="myModal1" class="modal">
+      <div class="modal-content">
+        <button class="close">&times;</button>
+        <p>Первое модальное окно</p>
+      </div>
+    </div>
+
+    <div id="myModal2" class="modal">
+      <div class="modal-content">
+        <button class="close">&times;</button>
+        <p>Второе модальное окно</p>
+      </div>
+    </div>
+
+    <div id="myModal3" class="modal">
+      <div class="modal-content">
+        <button class="close">&times;</button>
+        <p>Третье модальное окно</p>
+      </div>
+    </div>
+    
+    <!-- Подключаем jQuery и jQuery UI -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    
+    <script>
+      $(document).ready(function () {
+
+        $('.accordion').sortable();
+
+        $('.accordion').accordion({
+          collapsible: true,
+          header: '>div>h3'
+        });
+
+        // Массив для хранения дел (необязательно, но полезно для дальнейшей работы)
+        var todos = [];
+        
+        // Функция для инициализации перетаскивания элемента
+        function makeDraggable(element) {
+          element.draggable({
+            revert: "invalid", // Возвращает на место, если не сброшен в допустимую область
+            cursor: "move", // Вид курсора при перетаскивании
+            zIndex: 1000, // Чтобы элемент был поверх других
+            start: function() {
+              $(this).addClass('dragging'); // Добавляем класс при начале перетаскивания
+            },
+            stop: function() {
+              $(this).removeClass('dragging'); // Удаляем класс после перетаскивания
+            }
+          });
+        }
+        
+        // Делаем контейнер .things сбрасываемой областью
+        $(".things").droppable({
+          accept: ".thing", // Принимаем только элементы с классом .thing
+          hoverClass: "drop-hover", // Класс при наведении перетаскиваемого элемента
+          drop: function(event, ui) {
+            // Эта функция срабатывает, когда элемент сброшен в область
+            // Здесь мы можем добавить логику для обновления позиций
+          }
+        });
+        
+        // Добавление нового дела
+        $(".add-thing").on("click", function () {
+          let text = $(".input-thing").val().trim();
+          if (text) {
+            // Создаем новый элемент как jQuery объект
+            const newThing = $('<div class="thing">')
+              .append('<button class="close-thing">Выполнено</button>')
+              .append('<span>' + text + '</span>');
+            
+
+            newThing.css('color','red');
+            // Добавляем в список
+            $(".things").append(newThing);
+            
+            // Делаем элемент перетаскиваемым
+            makeDraggable(newThing);
+            
+            // Добавляем в массив todos (опционально)
+            todos.push({
+              id: Date.now(),
+              text: text,
+              element: newThing
+            });
+            
+            // Очищаем поле ввода
+            $(".input-thing").val("");
+          }
+        });
+        
+        // Удаление дела
+        $(".things").on("click", ".close-thing", function (e) {
+          e.stopPropagation(); // Предотвращаем всплытие события
+          var thing = $(this).parent(".thing");
+          thing.hide(800, function () {
+            $(this).remove();
+            // Удаляем из массива todos (опционально)
+            todos = todos.filter(todo => todo.element[0] !== this);
+          });
+        });
+        
+        // Делаем элементы сортируемыми (это основной механизм для перетаскивания)
+        $(".things").sortable({
+          items: "> .thing", // Указываем, какие элементы можно сортировать
+          placeholder: "placeholder", // Класс для плейсхолдера
+          opacity: 0.6, // Прозрачность перетаскиваемого элемента
+          cursor: "move", // Вид курсора
+          update: function(event, ui) {
+            // Эта функция вызывается после изменения порядка
+            console.log("Порядок изменен!");
+            // Здесь можно обновить массив todos в соответствии с новым порядком
+          }
+        });
+        
+        // Отключаем стандартный draggable, так как используем sortable
+        $(".things").disableSelection();
+
+
+        $('.button1').on('click', function() {
+          $('#myModal1').fadeIn(300);
+        });
+
+        $('.button2').on('click', function() {
+          $('#myModal2').fadeIn(300);
+        });
+        
+        $('.button3').on('click', function() {
+          $('#myModal3').fadeIn(300);
+        });
+
+        $('.close').on('click', function() {
+          $('.modal').fadeOut(300);
+        });
+      });
+
+      $(window).on('click', function(e) {
+        if ($(e.target).is('.modal')) {
+          $('.modal').fadeOut(300);
+        }
+      });
+
+
+       $.get('https://jsonplaceholder.typicode.com/posts', function(data) {
+        console.log(data[43].id);
+       })
+    </script>
+</body>
+</html>
